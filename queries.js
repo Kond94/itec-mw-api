@@ -79,13 +79,10 @@ client.on("notification", (notification) => {
 client.query("LISTEN trigger_event");
 
 const getOrganizations = (request, response) => {
-  console.log("Getting Orgs");
-
   pool.query(
     "SELECT * FROM organizations ORDER BY id ASC",
     (error, results) => {
       if (error) {
-        console.log(error);
         throw error;
       }
 
