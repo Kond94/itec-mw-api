@@ -1,8 +1,7 @@
 const express = require("express");
 const { createServer } = require("node:http");
 var pg = require("pg").native;
-require("dotenv").config();
-
+require("dotenv").config({ path: "./.env" });
 const bodyParser = require("body-parser");
 const { Server } = require("socket.io");
 

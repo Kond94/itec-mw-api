@@ -2,7 +2,7 @@ const Pool = require("pg").Pool;
 const { Client } = require("pg");
 const { io } = require(".");
 const { Expo } = require("expo-server-sdk");
-
+require("dotenv").config({ path: "./.env" });
 const expo = new Expo();
 
 const pool = new Pool({
@@ -11,6 +11,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASS,
   port: process.env.DB_PORT,
+  ssl: true,
 });
 
 const client = new Client({
@@ -18,7 +19,8 @@ const client = new Client({
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASS,
-  port: process.env.DB_PASS,
+  port: process.env.DB_PORT,
+  ssl: true,
 });
 
 client.connect();
