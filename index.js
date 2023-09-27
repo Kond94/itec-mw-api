@@ -1,5 +1,5 @@
 const express = require("express");
-const { createServer } = require("http");
+const { createServer } = require("node:http");
 var pg = require("pg").native;
 require("dotenv").config();
 
