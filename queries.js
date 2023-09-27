@@ -1,6 +1,6 @@
 const Pool = require("pg").Pool;
 const { Client } = require("pg");
-const { io } = require(".");
+const { app } = require(".");
 const { Expo } = require("expo-server-sdk");
 require("dotenv").config({ path: "./.env" });
 const expo = new Expo();
@@ -36,7 +36,7 @@ client.on("notification", (notification) => {
         } else {
           console.log(results.rows);
 
-          io.emit("manufacturers_changed", results.rows);
+          app.emit("manufacturers_changed", results.rows);
         }
       });
 
@@ -48,7 +48,7 @@ client.on("notification", (notification) => {
         } else {
           console.log(results.rows);
 
-          io.emit("organizations_changed", results.rows);
+          app.emit("organizations_changed", results.rows);
         }
       });
       break;
@@ -57,17 +57,17 @@ client.on("notification", (notification) => {
         if (error) {
           console.error("Error executing query", error);
         } else {
-          io.emit("printers_changed", results.rows);
+          app.emit("printers_changed", results.rows);
         }
       });
       break;
 
     case "printers_history_changed":
-      io.emit("printers_history_changed", "The Data has Changed");
+      app.emit("printers_history_changed", "The Data has Changed");
 
       break;
     case "users_changed":
-      io.emit("users_changed", "The Data has Changed");
+      app.emit("users_changed", "The Data has Changed");
 
       break;
     default:
