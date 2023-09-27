@@ -12,7 +12,8 @@ app.use(
     origin: "*",
   })
 );
-
+app.keepAliveTimeout = 120 * 1000;
+app.headersTimeout = 120 * 1000;
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", true);
@@ -21,7 +22,6 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Headers",
     "Origin,X-Requested-With,Content-Type,Accept,content-type,application/json"
   );
-  next();
   next();
 });
 
@@ -122,8 +122,7 @@ app.get(
 app.listen(port, () => {
   console.log(`App running on port ${port}.`);
 });
-app.keepAliveTimeout = 120 * 1000;
-app.headersTimeout = 120 * 1000;
+
 app.use(function (err, req, res, next) {
   res.status(err.status || 500).json(response.error(err.status || 500));
 });
