@@ -1,0 +1,42 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\yarn\bin\yarn.js
+
+PATH: 
+  C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Users\kamse\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\Program Files\MyQ\Firebird;C:\Users\kamse\AppData\Local\Android\Sdk\platform-tools;C:\Users\kamse\AppData\Local\Android\Sdk\tools;C:\Users\kamse\AppData\Local\jdk-11.0.2\bin;C:\Users\kamse\AppData\Local\Microsoft\WindowsApps;C:\Users\kamse\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\kamse\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\heroku\bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  16.20.1
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: getaddrinfo ENOTFOUND registry.yarnpkg.com
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:109:26)
+
+npm manifest: 
+  {
+    "name": "itec-api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.18.1",
+      "pg": "^8.7.3"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
