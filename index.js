@@ -1,6 +1,7 @@
 const express = require("express");
-const { createServer } = require("node:http");
+const { createServer } = require("http");
 var pg = require("pg").native;
+require("dotenv").config();
 
 const bodyParser = require("body-parser");
 const { Server } = require("socket.io");

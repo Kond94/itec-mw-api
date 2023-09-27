@@ -2,7 +2,6 @@ const Pool = require("pg").Pool;
 const { Client } = require("pg");
 const { io } = require(".");
 const { Expo } = require("expo-server-sdk");
-require("dotenv").config();
 
 const expo = new Expo();
 
