@@ -7,13 +7,9 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = createServer(app);
-app.use(
-  cors({
-    origin: "*",
-  })
-);
-app.keepAliveTimeout = 120 * 1000;
-app.headersTimeout = 120 * 1000;
+
+app.use(cors());
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", true);
@@ -124,5 +120,5 @@ app.listen(port, () => {
 });
 
 app.use(function (err, req, res, next) {
-  res.status(err.status || 500).json(response);
+  res.status(err.status || 500).json(response.error(err.status || 500));
 });

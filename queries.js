@@ -89,7 +89,6 @@ const getOrganizations = (request, response) => {
         throw error;
       }
 
-      response.status(400).json(results);
       response.status(200).json(results.rows);
     }
   );
