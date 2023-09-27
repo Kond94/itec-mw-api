@@ -1,12 +1,17 @@
 const express = require("express");
 const { createServer } = require("node:http");
-var pg = require("pg").native;
+const cors = require("cors");
 require("dotenv").config({ path: "./.env" });
 const bodyParser = require("body-parser");
 const { Server } = require("socket.io");
 
 const app = express();
 const server = createServer(app);
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 const io = new Server(server, {
   cors: {
