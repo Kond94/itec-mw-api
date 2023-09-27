@@ -124,6 +124,5 @@ app.listen(port, () => {
 });
 
 app.use(function (err, req, res, next) {
-  res.status(err.status || 500).json(response.error(err.status || 500));
-  res.status(err.status || 400).json(response.error(err.status || 400));
+  res.status(err.status || 500).json(response);
 });
