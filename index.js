@@ -23,6 +23,11 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Methods", "GET");
   next();
 });
+app.all("/", function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
 
 const io = new Server(server, {
   cors: {
