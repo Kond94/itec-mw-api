@@ -13,6 +13,17 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Request-Headers", "x-requested-with"); //according jquery docs it only works with this header.
+  res.setHeader("Access-Control-Allow-Methods", "GET");
+  next();
+});
+
 const io = new Server(server, {
   cors: {
     origin: "*",
