@@ -23,11 +23,6 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Methods", "GET");
   next();
 });
-app.all("/", function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
-});
 
 const io = new Server(server, {
   cors: {
@@ -126,7 +121,8 @@ app.get(
 app.listen(port, () => {
   console.log(`App running on port ${port}.`);
 });
-
+app.keepAliveTimeout = 120 * 1000;
+app.headersTimeout = 120 * 1000;
 app.use(function (err, req, res, next) {
   res.status(err.status || 500).json(response.error(err.status || 500));
 });
