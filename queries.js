@@ -26,16 +26,12 @@ const client = new Client({
 client.connect();
 
 client.on("notification", (notification) => {
-  console.log(notification.payload);
-
   switch (notification.payload) {
     case "manufacturers_changed":
       pool.query("SELECT * FROM manufacturers", (error, results) => {
         if (error) {
           console.error("Error executing query", error);
         } else {
-          console.log(results.rows);
-
           io.emit("manufacturers_changed", results.rows);
         }
       });
@@ -46,8 +42,7 @@ client.on("notification", (notification) => {
         if (error) {
           console.error("Error executing query", error);
         } else {
-          console.log(results.rows);
-
+          console.log("Changed");
           io.emit("organizations_changed", results.rows);
         }
       });
@@ -173,7 +168,7 @@ const getOrganizationPrinters = (request, response) => {
   const id = request.params.id;
 
   pool.query(
-    "SELECT printers.id, printers.name, printers.serial_number, printers.bw_count, printers.color_count, printers.total_count, manufacturers.id AS manufacturerid,  models.id AS modelid, manufacturers.name AS manufacturer, models.name AS model,  models.photo AS printerphoto, printer_types.name AS type FROM printers LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id WHERE organization = $1 ORDER BY id ASC",
+    "SELECT printers.id, printers.name, printers.serial_number, printers.bw_count, printers.color_count, printers.total_count, manufacturers.id AS manufacturer_id,  models.id AS model_id, manufacturers.name AS manufacturer, models.name AS model,  models.photo AS printer_photo, printer_types.name AS type FROM printers LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id WHERE organization = $1 ORDER BY id ASC",
     [id],
     (error, results) => {
       if (error) {
@@ -193,7 +188,7 @@ const getUsers = (request, response) => {
   });
 };
 
-const getPrinterIssueTypes = (request, response) => {
+const getPrinterHistoryProblemTypes = (request, response) => {
   pool.query(
     "SELECT * FROM printer_history_problem_types ORDER BY id ASC",
     (error, results) => {
@@ -298,7 +293,7 @@ const deleteUser = (request, response) => {
 
 const getPrinters = (request, response) => {
   pool.query(
-    "SELECT printers.id, printers.name, printers.serial_number, printers.bw_count, printers.color_count, printers.total_count, manufacturers.id AS manufacturerid,  models.id AS modelid, manufacturers.name AS manufacturer, models.name AS model,  models.photo AS printerphoto, printer_types.name AS type FROM printers LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id ORDER BY id ASC",
+    "SELECT printers.id, printers.name, printers.serial_number, printers.bw_count, printers.color_count, printers.total_count, manufacturers.id AS manufacturer_id,  models.id AS model_id, manufacturers.name AS manufacturer, models.name AS model,  models.photo AS printer_photo, printer_types.name AS type FROM printers LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id ORDER BY id ASC",
     (error, results) => {
       if (error) {
         throw error;
@@ -311,7 +306,7 @@ const getPrinters = (request, response) => {
 const getPrinterById = (request, response) => {
   const id = request.params.id;
   pool.query(
-    "SELECT printers.id, printers.name, printers.serial_number, printers.bw_count, printers.color_count, printers.total_count, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, models.name AS model,  models.photo AS printerphoto, printer_types.name AS type FROM printers LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id WHERE printers.id = $1",
+    "SELECT printers.id, printers.name, printers.serial_number, printers.bw_count, printers.color_count, printers.total_count, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, models.name AS model,  models.photo AS printer_photo, printer_types.name AS type FROM printers LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id WHERE printers.id = $1",
     [id],
     (error, results) => {
       if (error) {
@@ -415,7 +410,7 @@ const getManufacturerParts = (request, response) => {
   const id = request.params.id;
 
   pool.query(
-    "SELECT parts.id as id, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, parts.part_number FROM parts LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id WHERE manufacturer = $1 ORDER BY id ASC",
+    "SELECT parts.id as id, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, parts.part_number FROM parts LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id WHERE manufacturer = $1 ORDER BY id ASC",
     [id],
     (error, results) => {
       if (error) {
@@ -430,7 +425,7 @@ const getManufacturerModels = (request, response) => {
   const id = request.params.id;
 
   pool.query(
-    "SELECT models.id as id, manufacturers.id AS manufacturerid, models.id AS modelid, manufacturers.name AS manufacturer, models.name FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id WHERE manufacturer = $1 ORDER BY id ASC",
+    "SELECT models.id as id, manufacturers.id AS manufacturer_id, models.id AS model_id, manufacturers.name AS manufacturer, models.name FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id WHERE manufacturer = $1 ORDER BY id ASC",
     [id],
     (error, results) => {
       if (error) {
@@ -505,7 +500,7 @@ const deleteManufacturer = (request, response) => {
 
 const getModels = (request, response) => {
   pool.query(
-    "SELECT models.id, models.name, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, printer_types.name AS type FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id ORDER BY id ASC",
+    "SELECT models.id, models.name, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, printer_types.name AS type FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id ORDER BY id ASC",
     (error, results) => {
       if (error) {
         throw error;
@@ -518,7 +513,7 @@ const getModels = (request, response) => {
 const getModelById = (request, response) => {
   const id = request.params.id;
   pool.query(
-    "SELECT models.id, models.name, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, printer_types.name AS type FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id WHERE models.id = $1",
+    "SELECT models.id, models.name, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, printer_types.name AS type FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id WHERE models.id = $1",
     [id],
     (error, results) => {
       if (error) {
@@ -575,7 +570,7 @@ const deleteModel = (request, response) => {
 
 const getParts = (request, response) => {
   pool.query(
-    "SELECT parts.id, parts.part_number, parts.description, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, part_types.name AS type FROM parts LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id ORDER BY id ASC",
+    "SELECT parts.id, parts.part_number, parts.description, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, part_types.name AS type FROM parts LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id ORDER BY id ASC",
     (error, results) => {
       if (error) {
         throw error;
@@ -639,13 +634,13 @@ const deletePart = (request, response) => {
 
 // PrinterHistory
 
-const getPrinterHistoryResolutions = async (request, response) => {
+const getPrinterHistorySolutions = async (request, response) => {
   const id = request.params.id;
   const query1 =
-    "SELECT printers_history.id AS id, printers_history.date_reported, printers_history.date_resolved, printers_history.printer, printers_history.reported_by, printers_history.solution_description, printers_history.resolved_by, printers_history.resolved, printers_history.problem_type AS problem_type_id, printer_history_problem_types.name AS problem_type_name, printers_history.bw_count, printers_history.color_count, printers_history.total_count, printers_history.problem_description, users.name AS userName, users.photo AS userPhoto, users.is_manager AS is_manager, users.is_super_user AS is_super_user FROM printers_history LEFT JOIN users ON printers_history.reported_by = users.id LEFT JOIN printer_history_problem_types ON printers_history.problem_type = printer_history_problem_types.id WHERE printer = $1 AND resolved = true";
+    "SELECT printers_history.id AS id, printers_history.date_reported, printers_history.date_resolved, printers_history.printer, printers_history.reported_by, printers_history.solution_description, printers_history.resolved_by, printers_history.resolved, printers_history.problem_type AS problem_type_id, printer_history_problem_types.name AS problem_type_name, printers_history.bw_count, printers_history.color_count, printers_history.total_count, printers_history.problem_description, users.name AS user_name, users.photo AS user_photo, users.is_manager AS is_manager, users.is_technician AS is_technician, users.is_super_user AS is_super_user FROM printers_history LEFT JOIN users ON printers_history.reported_by = users.id LEFT JOIN printer_history_problem_types ON printers_history.problem_type = printer_history_problem_types.id WHERE printer = $1 AND resolved = true";
 
   const query2 =
-    "SELECT printer_history_parts.id AS id, printer_history_parts.printer_history AS printer_history, printer_history_parts.part AS partid, printer_history_parts.quantity, printer_history_parts.invoiced, printer_history_parts.invoice_number, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, parts.part_number AS part_number, parts.description AS description, parts.yield as part_yield, part_types.name AS part_type FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id  LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id WHERE printer_history IN (SELECT printer_history FROM printers_history WHERE printer = $1)";
+    "SELECT printer_history_parts.id AS id, printer_history_parts.printer_history AS printer_history, printer_history_parts.part AS part_id, printer_history_parts.quantity, printer_history_parts.invoiced, printer_history_parts.invoice_number, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, parts.part_number AS part_number, parts.description AS description, parts.yield as part_yield, part_types.name AS part_type FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id  LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id WHERE printer_history IN (SELECT printer_history FROM printers_history WHERE printer = $1)";
 
   const query3 =
     "SELECT * FROM printer_history_solution_photos WHERE printer_history IN (SELECT printer_history FROM printers_history WHERE printer = $1)";
@@ -678,7 +673,7 @@ const getPrinterHistoryProblems = async (request, response) => {
   const id = request.params.id;
 
   const query1 =
-    "SELECT printers_history.id AS id, printers_history.date_reported, printers_history.printer, printers_history.reported_by, printers_history.solution_description, printers_history.resolved_by, printers_history.resolved, printers_history.problem_type AS problem_type_id, printer_history_problem_types.name AS problem_type_name, printers_history.bw_count, printers_history.color_count, printers_history.total_count, printers_history.problem_description, users.name AS userName, users.photo AS userPhoto, users.is_manager AS is_manager, users.is_super_user AS is_super_user FROM printers_history LEFT JOIN users ON printers_history.reported_by = users.id LEFT JOIN printer_history_problem_types ON printers_history.problem_type = printer_history_problem_types.id WHERE printer = $1 AND problem_type IS NOT NULL";
+    "SELECT printers_history.id AS id, printers_history.date_reported, printers_history.printer, printers_history.reported_by, printers_history.solution_description, printers_history.resolved_by, printers_history.resolved, printers_history.problem_type AS problem_type_id, printer_history_problem_types.name AS problem_type_name, printers_history.bw_count, printers_history.color_count, printers_history.total_count, printers_history.problem_description, users.name AS user_name, users.photo AS user_photo, users.is_manager AS is_manager, users.is_technician AS is_technician, users.is_super_user AS is_super_user FROM printers_history LEFT JOIN users ON printers_history.reported_by = users.id LEFT JOIN printer_history_problem_types ON printers_history.problem_type = printer_history_problem_types.id WHERE printer = $1 AND problem_type IS NOT NULL";
 
   const query2 =
     "SELECT * FROM printer_history_solution_photos WHERE printer_history IN (SELECT printer_history FROM printers_history WHERE printer = $1);";
@@ -1016,7 +1011,7 @@ const deletePrinterHistory = (request, response) => {
 const getPrinterHistoryParts = (request, response) => {
   const id = request.params.id;
   pool.query(
-    "SELECT parts.part_number, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, part_types.name AS part_type, printer_history_parts.quantity FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id WHERE printer_history_parts.printer_history = $1",
+    "SELECT parts.part_number, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, part_types.name AS part_type, printer_history_parts.quantity FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id WHERE printer_history_parts.printer_history = $1",
     [id],
     (error, results) => {
       if (error) {
@@ -1030,7 +1025,7 @@ const getPrinterHistoryParts = (request, response) => {
 const getPrinterHistoryPartById = (request, response) => {
   const id = request.params.id;
   pool.query(
-    "SELECT parts.part_number, manufacturers.id AS manufacturerid, manufacturers.name AS manufacturer, part_types.name AS part_type, printer_history_parts.quantity FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id WHERE printer_history_parts.id = $1",
+    "SELECT parts.part_number, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, part_types.name AS part_type, printer_history_parts.quantity FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id WHERE printer_history_parts.id = $1",
     [id],
     (error, results) => {
       if (error) {
@@ -1088,7 +1083,7 @@ const deletePrinterHistoryPart = (request, response) => {
   );
 };
 
-const getNonInvoicedParts = (request, response) => {
+const getPrinterHistoryNonInvoicedParts = (request, response) => {
   pool.query(
     "SELECT printer_history_parts.id, manufacturers.name AS manufacturer, parts.part_number AS name, parts.yield AS expected_yield, printers_history.bw_count AS replacement_bw_count, printers_history.color_count AS replacement_color_count, printers_history.total_count AS replacement_total_count, printers.name AS printer_name, printers_history.problem_description, users.name AS replaced_by, printers_history.date_resolved AS replaced_on FROM printer_history_parts LEFT JOIN parts ON printer_history_parts.part = parts.id LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN printers_history ON printer_history_parts.printer_history = printers_history.id LEFT JOIN printers ON printers_history.printer = printers.id LEFT JOIN users ON printers_history.resolved_by = users.id WHERE invoiced = false ORDER BY id ASC",
     (error, results) => {
@@ -1100,7 +1095,7 @@ const getNonInvoicedParts = (request, response) => {
   );
 };
 
-const getOrganizationNonInvoicedParts = (request, response) => {
+const getOrganizationPrinterHistoryNonInvoicedParts = (request, response) => {
   const id = request.params.id;
 
   pool.query(
@@ -1115,7 +1110,7 @@ const getOrganizationNonInvoicedParts = (request, response) => {
   );
 };
 
-const getUnresolvedProblems = (request, response) => {
+const getPrinterHistoryUnresolvedProblems = (request, response) => {
   pool.query(
     "SELECT printers_history.id, printers_history.bw_count, printers_history.color_count, printers_history.total_count, printers_history.problem_description, printers_history.date_reported, printers.name AS printer_name, models.name AS model_name, manufacturers.name AS manufacturer_name, users.name AS resolved_by_name FROM printers_history LEFT JOIN printer_history_problem_types ON printers_history.problem_type = printer_history_problem_types.id LEFT JOIN printers ON printers_history.printer = printers.id LEFT JOIN users ON printers_history.resolved_by = users.id LEFT JOIN models ON printers.model = models.id LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id WHERE resolved = false ORDER BY date_reported DESC",
     (error, results) => {
@@ -1127,7 +1122,7 @@ const getUnresolvedProblems = (request, response) => {
   );
 };
 
-const getOrganizationUnresolvedProblems = (request, response) => {
+const getOrganizationPrinterHistoryUnresolvedProblems = (request, response) => {
   const id = request.params.id;
 
   pool.query(
@@ -1158,11 +1153,11 @@ const getPartLastReplacedCount = (request, response) => {
 };
 
 module.exports = {
-  getNonInvoicedParts,
-  getOrganizationNonInvoicedParts,
-  getOrganizationUnresolvedProblems,
+  getPrinterHistoryNonInvoicedParts,
+  getOrganizationPrinterHistoryNonInvoicedParts,
+  getOrganizationPrinterHistoryUnresolvedProblems,
   getPartLastReplacedCount,
-  getUnresolvedProblems,
+  getPrinterHistoryUnresolvedProblems,
   getUsers,
   getUserById,
   createUser,
@@ -1190,7 +1185,7 @@ module.exports = {
   createPart,
   updatePart,
   deletePart,
-  getPrinterHistoryResolutions,
+  getPrinterHistorySolutions,
   getPrinterHistoryProblems,
   getPrinterHistoryById,
   createPrinterHistoryProblem,
@@ -1209,5 +1204,5 @@ module.exports = {
   deleteOrganization,
   getOrganizationUsers,
   getOrganizationPrinters,
-  getPrinterIssueTypes,
+  getPrinterHistoryProblemTypes,
 };

@@ -63,7 +63,7 @@ app.post("/printers", db.createPrinter);
 app.put("/printers/:id", db.updatePrinter);
 app.delete("/printers/:id", db.deletePrinter);
 
-app.get("/printers/problems/types", db.getPrinterIssueTypes);
+app.get("/printers/problems/types", db.getPrinterHistoryProblemTypes);
 app.get("/printers/:id", db.getPrinterById);
 app.get("/printers", db.getPrinters);
 app.post("/printers", db.createPrinter);
@@ -71,7 +71,7 @@ app.put("/printers/:id", db.updatePrinter);
 app.delete("/printers/:id", db.deletePrinter);
 
 app.get("/printers/histories/problems/:id", db.getPrinterHistoryProblems);
-app.get("/printers/histories/solutions/:id", db.getPrinterHistoryResolutions);
+app.get("/printers/histories/solutions/:id", db.getPrinterHistorySolutions);
 app.post("/printers/histories/solutions/", db.createPrinterHistorySolution);
 app.post("/printers/histories/problems/", db.createPrinterHistoryProblem);
 app.put("/printers/history/:id", db.updatePrinterHistory);
@@ -104,15 +104,18 @@ app.post("/parts", db.createPart);
 app.put("/parts/:id", db.updatePart);
 app.delete("/parts/:id", db.deletePart);
 
-app.get("/pending/parts/nonInvoiced", db.getNonInvoicedParts);
+app.get("/pending/parts/nonInvoiced", db.getPrinterHistoryNonInvoicedParts);
 app.get(
   "/pending/organizations/parts/nonInvoiced/:id",
-  db.getOrganizationNonInvoicedParts
+  db.getOrganizationPrinterHistoryNonInvoicedParts
 );
-app.get("/pending/printers/history/unresolved", db.getUnresolvedProblems);
+app.get(
+  "/pending/printers/history/unresolved",
+  db.getPrinterHistoryUnresolvedProblems
+);
 app.get(
   "/pending/organizations/printers/history/unresolved/:id",
-  db.getOrganizationUnresolvedProblems
+  db.getOrganizationPrinterHistoryUnresolvedProblems
 );
 
 app.listen(port, () => {
