@@ -6,10 +6,24 @@ const bodyParser = require("body-parser");
 const { Server } = require("socket.io");
 
 const app = express();
-const server = createServer(app);
+const server = require("http").createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
-app.use(cors());
+io.on("connection", (socket) => {
+  console.log("A user connected");
 
+  // Emitting a message to the client
+  socket.emit("message", "Hello from the server!");
+
+  // Receiving a message from the client
+  socket.on("message", (data) => {
+    console.log("Received message:", data);
+  });
+});
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", true);
@@ -19,12 +33,6 @@ app.use((req, res, next) => {
     "Origin,X-Requested-With,Content-Type,Accept,content-type,application/json"
   );
   next();
-});
-
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
 });
 
 io.on("connection", (socket) => {
