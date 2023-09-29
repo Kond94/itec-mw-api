@@ -26,6 +26,11 @@ const io = new Server(server, {
     origin: "*",
   },
 });
+
+io.on("connection", (socket) => {
+  console.log("Connected");
+  socket.on("disconnect", () => console.log("Client disconnected"));
+});
 module.exports = { io };
 
 const port = 3000;
