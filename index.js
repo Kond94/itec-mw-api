@@ -1,17 +1,10 @@
 const express = require("express");
-const { createServer } = require("node:https");
-const cors = require("cors");
 require("dotenv").config({ path: "./.env" });
 const bodyParser = require("body-parser");
-const { Server } = require("socket.io");
 
 const app = express();
-const server = require("http").createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
 io.on("connection", (socket) => {
   console.log("A user connected");
@@ -24,6 +17,9 @@ io.on("connection", (socket) => {
     console.log("Received message:", data);
   });
 });
+
+module.exports = { io };
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", true);
@@ -34,12 +30,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-io.on("connection", (socket) => {
-  console.log("Connected");
-  socket.on("disconnect", () => console.log("Client disconnected"));
-});
-module.exports = { io };
 
 const port = 3000;
 
@@ -131,7 +121,7 @@ app.get(
   db.getOrganizationPrinterHistoryUnresolvedProblems
 );
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log(`App running on port ${port}.`);
 });
 
