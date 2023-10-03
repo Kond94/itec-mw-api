@@ -201,27 +201,31 @@ const getPrinterHistoryProblemTypes = (request, response) => {
 };
 
 const getPrinterTypes = (request, response) => {
+  console.log("Getting Parts");
+
   pool.query(
     "SELECT * FROM printer_types ORDER BY id ASC",
     (error, results) => {
       if (error) {
         throw error;
       }
+      console.log("Printer Types", results.rows);
       response.status(200).json(results.rows);
     }
   );
 };
 
 const getPartTypes = (request, response) => {
-  pool.query(
-    "SELECT * FROM printer_types ORDER BY id ASC",
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      response.status(200).json(results.rows);
+  console.log("Getting Parts");
+
+  pool.query("SELECT * FROM part_types ORDER BY id ASC", (error, results) => {
+    if (error) {
+      throw error;
     }
-  );
+    console.log("Part Types", results.rows);
+
+    response.status(200).json(results.rows);
+  });
 };
 
 const getUserById = (request, response) => {
