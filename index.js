@@ -55,7 +55,7 @@ app.put("/printers/:id", db.updatePrinter);
 app.delete("/printers/:id", db.deletePrinter);
 
 app.get("/printers/problems/types", db.getPrinterHistoryProblemTypes);
-app.get("/printers/types", db.getPrinterPrinterTypes);
+app.get("/printers/types", db.getPrinterTypes);
 app.get("/printers/:id", db.getPrinterById);
 app.get("/printers", db.getPrinters);
 app.post("/printers", db.createPrinter);
