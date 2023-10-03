@@ -6,18 +6,6 @@ const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // Emitting a message to the client
-  socket.emit("message", "Hello from the server!");
-
-  // Receiving a message from the client
-  socket.on("message", (data) => {
-    console.log("Received message:", data);
-  });
-});
-
 module.exports = { io };
 
 app.use((req, res, next) => {
