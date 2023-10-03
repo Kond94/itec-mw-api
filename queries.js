@@ -200,6 +200,30 @@ const getPrinterHistoryProblemTypes = (request, response) => {
   );
 };
 
+const getPrinterTypes = (request, response) => {
+  pool.query(
+    "SELECT * FROM printer_types ORDER BY id ASC",
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
+const getPartTypes = (request, response) => {
+  pool.query(
+    "SELECT * FROM printer_types ORDER BY id ASC",
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 const getUserById = (request, response) => {
   const id = request.params.id;
   pool.query("SELECT * FROM users WHERE id = $1", [id], (error, results) => {
@@ -1205,4 +1229,6 @@ module.exports = {
   getOrganizationUsers,
   getOrganizationPrinters,
   getPrinterHistoryProblemTypes,
+  getPrinterTypes,
+  getPartTypes,
 };

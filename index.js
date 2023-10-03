@@ -55,6 +55,7 @@ app.put("/printers/:id", db.updatePrinter);
 app.delete("/printers/:id", db.deletePrinter);
 
 app.get("/printers/problems/types", db.getPrinterHistoryProblemTypes);
+app.get("/printers/types", db.getPrinterPrinterTypes);
 app.get("/printers/:id", db.getPrinterById);
 app.get("/printers", db.getPrinters);
 app.post("/printers", db.createPrinter);
@@ -90,6 +91,8 @@ app.put("/models/:id", db.updateModel);
 app.delete("/models/:id", db.deleteModel);
 
 app.get("/parts/:id", db.getPartById);
+app.get("/parts/types", db.getPartTypes);
+
 app.get("/parts", db.getParts);
 app.post("/parts", db.createPart);
 app.put("/parts/:id", db.updatePart);
