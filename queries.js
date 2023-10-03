@@ -528,7 +528,7 @@ const deleteManufacturer = (request, response) => {
 
 const getModels = (request, response) => {
   pool.query(
-    "SELECT models.id, models.name, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, printer_types.name AS type FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id ORDER BY id ASC",
+    "SELECT models.id, models.name, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, printer_types.name AS type, printer_types.id AS type_id FROM models LEFT JOIN manufacturers ON models.manufacturer = manufacturers.id LEFT JOIN printer_types ON models.type = printer_types.id ORDER BY id ASC",
     (error, results) => {
       if (error) {
         throw error;
@@ -598,7 +598,7 @@ const deleteModel = (request, response) => {
 
 const getParts = (request, response) => {
   pool.query(
-    "SELECT parts.id, parts.part_number, parts.description, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, part_types.name AS type FROM parts LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id ORDER BY id ASC",
+    "SELECT parts.id, parts.part_number, parts.description, manufacturers.id AS manufacturer_id, manufacturers.name AS manufacturer, part_types.name AS type, part_types.id AS type_id FROM parts LEFT JOIN manufacturers ON parts.manufacturer = manufacturers.id LEFT JOIN part_types ON parts.part_type = part_types.id ORDER BY id ASC",
     (error, results) => {
       if (error) {
         throw error;
