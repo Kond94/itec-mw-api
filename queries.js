@@ -796,35 +796,37 @@ const createPrinterHistorySolution = async (request, response) => {
   const printerObject = await pool.query(printerQuery, [printer]);
 
   const usersToBeNotifiedQuery =
-    "SELECT * FROM users WHERE organization = $1 OR is_technician = true OR is_super_user = true;";
+    "SELECT * FROM users WHERE (organization = $1 AND notificationsEnabled = true) AND (is_technician = true OR is_super_user = true)";
 
   const usersToNotify = await pool.query(usersToBeNotifiedQuery, [
     printerObject.rows[0].organization,
   ]);
 
-  usersToNotify.rows.forEach(async (user) => {
-    if (!Expo.isExpoPushToken(user.expo_push_token)) {
-      console.log({ error: "Invalid push token" });
-    } else {
-      console.log({ success: "Valid push token" });
+  usersToNotify.rows
+    .filter((user) => user.id !== resolved_by)
+    .forEach(async (user) => {
+      if (!Expo.isExpoPushToken(user.expo_push_token)) {
+        console.log({ error: "Invalid push token" });
+      } else {
+        console.log({ success: "Valid push token" });
 
-      const messages = [
-        {
-          to: user.expo_push_token,
-          sound: "default",
-          title: "Solution Reported for " + printerObject.rows[0].name,
-          body: "Tap to view",
-        },
-      ];
+        const messages = [
+          {
+            to: user.expo_push_token,
+            sound: "default",
+            title: "Solution Reported for " + printerObject.rows[0].name,
+            body: "Tap to view",
+          },
+        ];
 
-      try {
-        const receipts = await expo.sendPushNotificationsAsync(messages);
-        console.log(receipts);
-      } catch (error) {
-        console.error("Error sending push notification:", error);
+        try {
+          const receipts = await expo.sendPushNotificationsAsync(messages);
+          console.log(receipts);
+        } catch (error) {
+          console.error("Error sending push notification:", error);
+        }
       }
-    }
-  });
+    });
 
   response.status(201).send(`Printer History added`);
 };
@@ -870,35 +872,37 @@ const createPrinterHistoryProblem = async (request, response) => {
   const printerObject = await pool.query(printerQuery, [printer]);
 
   const usersToBeNotifiedQuery =
-    "SELECT * FROM users WHERE organization = $1 OR is_technician = true OR is_super_user = true;";
+    "SELECT * FROM users WHERE (organization = $1 AND notificationsEnabled = true) AND (is_technician = true OR is_super_user = true)";
 
   const usersToNotify = await pool.query(usersToBeNotifiedQuery, [
     printerObject.rows[0].organization,
   ]);
 
-  usersToNotify.rows.forEach(async (user) => {
-    if (!Expo.isExpoPushToken(user.expo_push_token)) {
-      console.log({ error: "Invalid push token" });
-    } else {
-      console.log({ success: "Valid push token" });
+  usersToNotify.rows
+    .filter((user) => user.id !== reported_by)
+    .forEach(async (user) => {
+      if (!Expo.isExpoPushToken(user.expo_push_token)) {
+        console.log({ error: "Invalid push token" });
+      } else {
+        console.log({ success: "Valid push token" });
 
-      const messages = [
-        {
-          to: user.expo_push_token,
-          sound: "default",
-          title: "Problem Reported for " + printerObject.rows[0].name,
-          body: "Tap to view",
-        },
-      ];
+        const messages = [
+          {
+            to: user.expo_push_token,
+            sound: "default",
+            title: "Problem Reported for " + printerObject.rows[0].name,
+            body: "Tap to view",
+          },
+        ];
 
-      try {
-        const receipts = await expo.sendPushNotificationsAsync(messages);
-        console.log(receipts);
-      } catch (error) {
-        console.error("Error sending push notification:", error);
+        try {
+          const receipts = await expo.sendPushNotificationsAsync(messages);
+          console.log(receipts);
+        } catch (error) {
+          console.error("Error sending push notification:", error);
+        }
       }
-    }
-  });
+    });
 
   response.status(201).send(`Printer History added`);
 };
@@ -985,7 +989,7 @@ const updatePrinterHistory = async (request, response) => {
   const printerObject = await pool.query(printerQuery, [printer]);
 
   const usersToBeNotifiedQuery =
-    "SELECT * FROM users WHERE organization = $1 OR is_technician = true OR is_super_user = true;";
+    "SELECT * FROM users WHERE (organization = $1 AND notificationsEnabled = true) AND (is_technician = true OR is_super_user = true)";
 
   const usersToNotify = await pool.query(usersToBeNotifiedQuery, [
     printerObject.rows[0].organization,
