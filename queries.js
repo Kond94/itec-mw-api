@@ -4,7 +4,9 @@ const { io } = require(".");
 const { Expo } = require("expo-server-sdk");
 require("dotenv").config({ path: "./.env" });
 const expo = new Expo();
+const { v4: uuid } = require("uuid");
 
+const axios = require("axios");
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -12,6 +14,9 @@ const pool = new Pool({
   password: process.env.DB_PASS,
   port: process.env.DB_PORT,
   ssl: true,
+  min: 1,
+  max: 100,
+  keepAlive: true,
 });
 
 const client = new Client({
@@ -1184,7 +1189,132 @@ const getPartLastReplacedCount = (request, response) => {
   );
 };
 
+const initiateSession = async (request, response) => {
+  const {
+    amount = 10,
+    currency = "USD",
+    bookingType = "Accommodation",
+  } = request.body;
+
+  await axios
+    .post(
+      "https://test-nbm.mtf.gateway.mastercard.com/api/rest/version/72/merchant/MSHTEST01/session",
+      {
+        apiOperation: "INITIATE_CHECKOUT",
+        interaction: {
+          operation: "PURCHASE",
+          returnUrl: "http://localhost:3000/home",
+          merchant: {
+            name: "Malawi Sun Hotel",
+            url: "https://malawisunhotel.com",
+          },
+          displayControl: {
+            billingAddress: "HIDE",
+            customerEmail: "HIDE",
+          },
+        },
+        order: {
+          amount: amount,
+          currency: currency,
+          id: uuid(),
+          description: bookingType,
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Basic bWVyY2hhbnQuTVNIVEVTVDAxOmFjMDg0MDliMTA3MDUxMzhhYjQ2NmRiYmE3ZjgwYzM2",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        },
+      }
+    )
+    .then((res) => {
+      response.status(200).json(res.data.session.id);
+
+      console.log(res.data);
+    });
+};
+
+const getToken = async (request, response) => {
+  const { session } = request.body;
+
+  console.log(session);
+  await axios
+    .put(
+      "https://eu-gateway.mastercard.com/api/rest/version/75/merchant/MSHTEST01/token/" +
+        uuid(),
+      {
+        session: { id: session.id },
+      },
+      {
+        headers: {
+          Authorization:
+            "Basic bWVyY2hhbnQuTVNIVEVTVDAxOmFjMDg0MDliMTA3MDUxMzhhYjQ2NmRiYmE3ZjgwYzM2",
+        },
+      }
+    )
+    .then((res) => {
+      response.status(200).json(res.data);
+
+      console.log(res.data);
+    });
+};
+
+const makePayment = async (request, response) => {
+  const {
+    order,
+    session,
+    sourceOfFunds,
+    amount = 10,
+    currency = "USD",
+    bookingType = "Accommodation",
+  } = request.body;
+  var uname = "merchant.MSHTEST01";
+  var pass = "718fd2a546aa4de5d9ccfc83af25ddd6";
+  let base64 = require("base-64");
+  await axios
+    .post(
+      "https://test-nbm.mtf.gateway.mastercard.com/api/rest/version/65/merchant/MSHTEST01/session",
+      {
+        apiOperation: "INITIATE_CHECKOUT",
+        interaction: {
+          operation: "PURCHASE",
+          cancelUrl: "https://google.com",
+          merchant: {
+            name: "Malawi Sun Hotel",
+          },
+          displayControl: {
+            billingAddress: "HIDE",
+            customerEmail: "HIDE",
+          },
+        },
+        order: {
+          amount: 12.0,
+          currency: "USD",
+          id: uuid(),
+          description: "Accommodation",
+        },
+      },
+      {
+        headers: {
+          Authorization:
+            "Basic " + base64.encode(uname + ":" + pass),
+        },
+      }
+    )
+    .then((res) => {
+      response.status(200).json(res.data);
+
+      console.log(res.data);
+    });
+};
+
 module.exports = {
+  getToken,
+  makePayment,
+  initiateSession,
   getPrinterHistoryNonInvoicedParts,
   getOrganizationPrinterHistoryNonInvoicedParts,
   getOrganizationPrinterHistoryUnresolvedProblems,
