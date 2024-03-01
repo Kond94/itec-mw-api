@@ -10,12 +10,12 @@ const makePayment = async (request, response) => {
   let base64 = require("base-64");
   await axios
     .post(
-      "https://test-nbm.mtf.gateway.mastercard.com/api/rest/version/65/merchant/MSHTEST01/session",
+      "https://test-nbm.mtf.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
       {
         apiOperation: "INITIATE_CHECKOUT",
         interaction: {
           operation: "PURCHASE",
-          cancelUrl: "https://google.com",
+          cancelUrl: "https://www.malawisunhotel.com",
           merchant: {
             name: "Malawi Sun Hotel",
           },
