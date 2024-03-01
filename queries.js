@@ -10,7 +10,7 @@ const makePayment = async (request, response) => {
   let base64 = require("base-64");
   await axios
     .post(
-      "https://test-nbm.mtf.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
+      "https://nbm.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
       {
         apiOperation: "INITIATE_CHECKOUT",
         interaction: {
