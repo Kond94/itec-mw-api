@@ -120,19 +120,10 @@ const SendBookingSMS = async (request, response) => {
       // Handle the response as needed
       console.log("Response:", response.data);
 
-      res.status(200).json({ message: "POST request successful" });
-
       console.log(res.data);
     });
 
-  await fetch(
-    "https://api.africastalking.com/version1/messaging",
-    customerSmsOptions
-  ).then((response) => console.log(response));
-  await fetch(
-    "https://api.africastalking.com/version1/messaging",
-    hotelSmsOptions
-  ).then((response) => console.log(response));
+
 };
 
 module.exports = {
