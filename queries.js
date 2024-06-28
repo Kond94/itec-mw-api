@@ -4,8 +4,7 @@ const { v4: uuid } = require("uuid");
 const axios = require("axios");
 
 const makePayment = async (request, response) => {
-  const { amount, currency, description, name, bookingType, phone, email } =
-    request.body;
+  const { amount, currency, description } = request.body;
   var uname = process.env.NBM_PAYMENT_USERNAME;
   var pass = process.env.NBM_PAYMENT_PASS;
   let base64 = require("base-64");
@@ -61,11 +60,9 @@ const SendBookingSMS = async (request, response) => {
     quotedAmount,
   } = request.body;
 
-
-
   await axios
     .post(
-      "https://nbm.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
+      "https://api.africastalking.com/version1/messaging",
       Object.entries({
         username: "mwsun",
         to: "+265998681991",
@@ -98,7 +95,7 @@ const SendBookingSMS = async (request, response) => {
 
   await axios
     .post(
-      "https://nbm.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
+      "https://api.africastalking.com/version1/messaging",
       Object.entries({
         username: "mwsun",
         to: phone,
