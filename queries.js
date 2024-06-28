@@ -60,57 +60,74 @@ const SendBookingSMS = async (request, response) => {
     participants = false,
     quotedAmount,
   } = request.body;
-  const customerSmsOptions = {
-    // The method is POST because we are sending data.
-    method: "POST",
-    // Tell the server we're sending JSON.
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      apiKey:
-        "atsk_65683cfb065f61c6427f03c11d72a67b1a62ca3d6673aef9f0f72d7fa0d1bf77adaf55eb",
-      Accept: "application/json",
-    },
-    // Body of the request is the JSON data we created above.
-    body: Object.entries({
-      username: "mwsun",
-      to: phone,
-      message: `Dear ${name} Thank you for making a booking with Malawi Sun Hotel. Our team will be in contact shortly`,
-      enqueue: 1,
-    })
-      .map(
-        ([key, value]) =>
-          encodeURIComponent(key) + "=" + encodeURIComponent(value)
-      )
-      .join("&"),
-  };
 
-  const hotelSmsOptions = {
-    // The method is POST because we are sending data.
-    method: "POST",
-    // Tell the server we're sending JSON.
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      apiKey:
-        "atsk_65683cfb065f61c6427f03c11d72a67b1a62ca3d6673aef9f0f72d7fa0d1bf77adaf55eb",
-      Accept: "application/json",
-    },
-    // Body of the request is the JSON data we created above.
-    body: Object.entries({
-      username: "mwsun",
-      to: "+265998681991",
-      message: `New Booking alert! Name: ${name}, Phone: ${phone}, Email: ${email}, Booking Type: ${bookingType} - ${bookingDetail}, ${
-        adults ? "Adults: " + adults : ""
-      }, ${children ? "Children: " + children : ""}, ${
-        participants ? "Participants: " + participants : ""
-      }, Quoted: ${quotedAmount}`,
-      enqueue: 1,
-    })
-      .map(
-        ([key, value]) =>
-          encodeURIComponent(key) + "=" + encodeURIComponent(value)
-      )
-      .join("&"),
-  };
+
+
+  await axios
+    .post(
+      "https://nbm.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
+      Object.entries({
+        username: "mwsun",
+        to: "+265998681991",
+        message: `New Booking alert! Name: ${name}, Phone: ${phone}, Email: ${email}, Booking Type: ${bookingType} - ${bookingDetail}, ${
+          adults ? "Adults: " + adults : ""
+        }, ${children ? "Children: " + children : ""}, ${
+          participants ? "Participants: " + participants : ""
+        }, Quoted: ${quotedAmount}`,
+        enqueue: 1,
+      })
+        .map(
+          ([key, value]) =>
+            encodeURIComponent(key) + "=" + encodeURIComponent(value)
+        )
+        .join("&"),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          apiKey:
+            "atsk_65683cfb065f61c6427f03c11d72a67b1a62ca3d6673aef9f0f72d7fa0d1bf77adaf55eb",
+          Accept: "application/json",
+        },
+      }
+    )
+    .then(async (res) => {
+      // Handle the response as needed
+
+      console.log(res.data);
+    });
+
+  await axios
+    .post(
+      "https://nbm.gateway.mastercard.com/api/rest/version/72/merchant/MALAWISUN01/session",
+      Object.entries({
+        username: "mwsun",
+        to: phone,
+        message: `Dear ${name} Thank you for making a booking with Malawi Sun Hotel. Our team will be in contact shortly`,
+        enqueue: 1,
+      })
+        .map(
+          ([key, value]) =>
+            encodeURIComponent(key) + "=" + encodeURIComponent(value)
+        )
+        .join("&"),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          apiKey:
+            "atsk_65683cfb065f61c6427f03c11d72a67b1a62ca3d6673aef9f0f72d7fa0d1bf77adaf55eb",
+          Accept: "application/json",
+        },
+      }
+    )
+    .then(async (res) => {
+      // Handle the response as needed
+      console.log("Response:", response.data);
+
+      res.status(200).json({ message: "POST request successful" });
+
+      console.log(res.data);
+    });
+
   await fetch(
     "https://api.africastalking.com/version1/messaging",
     customerSmsOptions
