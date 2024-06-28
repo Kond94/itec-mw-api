@@ -37,11 +37,8 @@ const makePayment = async (request, response) => {
         },
       }
     )
-    .then(async (res) => {
-      // Handle the response as needed
-      console.log("Response:", response.data);
-
-      res.status(200).json({ message: "POST request successful" });
+    .then((res) => {
+      response.status(200).json(res.data);
 
       console.log(res.data);
     });
