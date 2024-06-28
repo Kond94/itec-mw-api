@@ -2,7 +2,6 @@ require("dotenv").config({ path: "./.env" });
 const { v4: uuid } = require("uuid");
 
 const axios = require("axios");
-const app = express();
 
 const makePayment = async (request, response) => {
   const { amount, currency, description, name, bookingType, phone, email } =
