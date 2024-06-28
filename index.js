@@ -30,6 +30,8 @@ app.get("/", (request, response) => {
 
 app.post("/make-payment", db.makePayment);
 
+app.post("/sendSMS", db.makePayment);
+
 http.listen(port, () => {
   console.log(`App running on port ${port}.`);
 });
