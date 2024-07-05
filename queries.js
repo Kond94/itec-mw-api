@@ -123,7 +123,42 @@ const SendBookingSMS = async (request, response) => {
 
 };
 
+const SendFarmerRegistrationMessage = async (request, response) => {
+  const { phoneNumber, message } = request.body;
+
+  await axios
+    .post(
+      "https://api.africastalking.com/version1/messaging",
+      Object.entries({
+        username: "ggem",
+        to: phoneNumber,
+        message: `${message}`,
+        enqueue: 1,
+      })
+        .map(
+          ([key, value]) =>
+            encodeURIComponent(key) + "=" + encodeURIComponent(value)
+        )
+        .join("&"),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          apiKey:
+            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70            ",
+          Accept: "application/json",
+        },
+      }
+    )
+    .then(async (res) => {
+      // Handle the response as needed
+      response.status(200).json(res.data);
+
+      console.log(res.data);
+    });
+};
+
 module.exports = {
   makePayment,
   SendBookingSMS,
+  SendFarmerRegistrationMessage,
 };
