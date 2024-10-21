@@ -119,15 +119,12 @@ const SendBookingSMS = async (request, response) => {
 
       console.log(res.data);
     });
-
-
 };
-
 const SendFarmerRegistrationMessage = async (request, response) => {
   const { phoneNumber, message } = request.body;
 
-  await axios
-    .post(
+  try {
+    const res = await axios.post(
       "https://api.africastalking.com/version1/messaging",
       Object.entries({
         username: "ggem",
@@ -144,18 +141,38 @@ const SendFarmerRegistrationMessage = async (request, response) => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           apiKey:
-            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70            ",
+            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70",
           Accept: "application/json",
         },
       }
-    )
-    .then(async (res) => {
-      // Handle the response as needed
-      response.status(200).json(res.data);
+    );
 
-      console.log(res.data);
+    console.log(res.data);
+
+    // Check the response status and return appropriate response
+    if (res.data.SMSMessageData.Recipients[0].status === "Success") {
+      response.status(200).json({
+        success: true,
+        message: "SMS sent successfully",
+        data: res.data,
+      });
+    } else {
+      response.status(400).json({
+        success: false,
+        message: "Failed to send SMS",
+        error: res.data.SMSMessageData.Recipients[0].status,
+      });
+    }
+  } catch (error) {
+    console.error("Error sending SMS:", error);
+    response.status(500).json({
+      success: false,
+      message: "An error occurred while sending the SMS",
+      error: error.message,
     });
+  }
 };
+
 
 module.exports = {
   makePayment,
