@@ -159,7 +159,8 @@ const SendFarmerRegistrationMessage = async (request, response) => {
     } else {
       response.status(400).json({
         success: false,
-        message: "Failed to send SMS",
+        message:
+          "Failed to send SMS" + res.data.SMSMessageData.Recipients[0].status,
         error: res.data.SMSMessageData.Recipients[0].status,
       });
     }
