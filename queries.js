@@ -141,7 +141,7 @@ const SendFarmerRegistrationMessage = async (request, response) => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           apiKey:
-            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70",
+            "atsk_80e845088e8719ec4bf1ab2ce0e334eb45f0196a96c31761b925973bc5aaff137fb3344d",
           Accept: "application/json",
         },
       }
@@ -216,7 +216,7 @@ const sendSingleSMS = async (request, response) => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           apiKey:
-            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70",
+            "atsk_80e845088e8719ec4bf1ab2ce0e334eb45f0196a96c31761b925973bc5aaff137fb3344d",
           Accept: "application/json",
         },
       }
@@ -284,7 +284,7 @@ const sendBulkSMS = async (request, response) => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           apiKey:
-            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70",
+            "atsk_80e845088e8719ec4bf1ab2ce0e334eb45f0196a96c31761b925973bc5aaff137fb3344d",
           Accept: "application/json",
         },
       }
