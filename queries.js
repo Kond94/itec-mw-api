@@ -215,7 +215,8 @@ const sendSingleSMS = async (request, response) => {
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          apiKey: process.env.AT_API_KEY,
+          apiKey:
+            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70",
           Accept: "application/json",
         },
       }
@@ -282,7 +283,8 @@ const sendBulkSMS = async (request, response) => {
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          apiKey: process.env.AT_API_KEY,
+          apiKey:
+            "atsk_bbc4f90139bf84a72e5a3c06277cefb39c1da21aa774baa42315e235bdf01300a3df9b70",
           Accept: "application/json",
         },
       }
