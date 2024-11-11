@@ -32,6 +32,8 @@ app.post("/make-payment", db.makePayment);
 
 app.post("/sendSMS", db.SendBookingSMS);
 app.post("/SendFarmerRegistrationMessage", db.SendFarmerRegistrationMessage);
+app.post("/send-sms", db.sendSingleSMS);
+app.post("/send-bulk-sms", db.sendBulkSMS);
 
 http.listen(port, () => {
   console.log(`App running on port ${port}.`);

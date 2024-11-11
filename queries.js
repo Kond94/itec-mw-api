@@ -174,9 +174,162 @@ const SendFarmerRegistrationMessage = async (request, response) => {
   }
 };
 
+const getStatusMessage = (statusCode) => {
+  const statusMessages = {
+    100: "Message processed successfully",
+    101: "Message sent successfully",
+    102: "Message queued for delivery",
+    401: "Message held due to risk assessment",
+    402: "Invalid sender ID provided",
+    403: "Invalid phone number format",
+    404: "Unsupported number type",
+    405: "Insufficient balance to send message",
+    406: "Recipient is in blacklist",
+    407: "Could not route message to recipient",
+    409: "Message rejected due to Do Not Disturb settings",
+    500: "Internal server error occurred",
+    501: "Gateway error occurred",
+    502: "Message rejected by gateway",
+  };
+  return statusMessages[statusCode] || "Unknown status";
+};
+
+const sendSingleSMS = async (request, response) => {
+  const { phoneNumber, message, from } = request.body;
+
+  try {
+    const res = await axios.post(
+      "https://api.africastalking.com/version1/messaging",
+      Object.entries({
+        username: process.env.AT_USERNAME,
+        to: phoneNumber,
+        message: message,
+        from: from || undefined,
+        enqueue: 1,
+      })
+        .map(
+          ([key, value]) =>
+            encodeURIComponent(key) + "=" + encodeURIComponent(value)
+        )
+        .join("&"),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          apiKey: process.env.AT_API_KEY,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const recipient = res.data.SMSMessageData.Recipients[0];
+    const statusCode = recipient.statusCode;
+
+    return response.status(200).json({
+      success: statusCode < 400,
+      message: getStatusMessage(statusCode),
+      data: {
+        phoneNumber: recipient.number,
+        status: recipient.status,
+        messageId: recipient.messageId,
+        cost: recipient.cost,
+        statusCode: statusCode,
+        statusMessage: getStatusMessage(statusCode),
+      },
+    });
+  } catch (error) {
+    return response.status(200).json({
+      success: false,
+      message: "SMS processing failed",
+      data: {
+        error: error.response?.data || error.message,
+        statusCode: error.response?.status || 500,
+        statusMessage: getStatusMessage(error.response?.status || 500),
+      },
+    });
+  }
+};
+
+const sendBulkSMS = async (request, response) => {
+  const { phoneNumbers, message, from } = request.body;
+
+  if (!Array.isArray(phoneNumbers)) {
+    return response.status(200).json({
+      success: false,
+      message: "Invalid request format",
+      data: {
+        error: "phoneNumbers must be an array",
+        statusCode: 400,
+        statusMessage: "Bad Request",
+      },
+    });
+  }
+
+  try {
+    const res = await axios.post(
+      "https://api.africastalking.com/version1/messaging/bulk",
+      Object.entries({
+        username: process.env.AT_USERNAME,
+        to: phoneNumbers.join(","),
+        message: message,
+        from: from || undefined,
+        bulkSMSMode: 1,
+        enqueue: 1,
+      })
+        .map(
+          ([key, value]) =>
+            encodeURIComponent(key) + "=" + encodeURIComponent(value)
+        )
+        .join("&"),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          apiKey: process.env.AT_API_KEY,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const results = res.data.SMSMessageData.Recipients.map((recipient) => ({
+      phoneNumber: recipient.number,
+      status: recipient.status,
+      messageId: recipient.messageId,
+      cost: recipient.cost,
+      statusCode: recipient.statusCode,
+      statusMessage: getStatusMessage(recipient.statusCode),
+    }));
+
+    const hasErrors = results.some((result) => result.statusCode >= 400);
+
+    return response.status(200).json({
+      success: !hasErrors,
+      message: res.data.SMSMessageData.Message,
+      data: {
+        summary: {
+          total: results.length,
+          successful: results.filter((r) => r.statusCode < 400).length,
+          failed: results.filter((r) => r.statusCode >= 400).length,
+        },
+        messages: results,
+      },
+    });
+  } catch (error) {
+    return response.status(200).json({
+      success: false,
+      message: "Bulk SMS processing failed",
+      data: {
+        error: error.response?.data || error.message,
+        statusCode: error.response?.status || 500,
+        statusMessage: getStatusMessage(error.response?.status || 500),
+      },
+    });
+  }
+};
+
 
 module.exports = {
   makePayment,
   SendBookingSMS,
   SendFarmerRegistrationMessage,
+  sendSingleSMS,
+  sendBulkSMS,
 };
