@@ -201,7 +201,7 @@ const sendSingleSMS = async (request, response) => {
     const res = await axios.post(
       "https://api.africastalking.com/version1/messaging",
       Object.entries({
-        username: process.env.AT_USERNAME,
+        username: "ggem",
         to: phoneNumber,
         message: message,
         from: from || undefined,
@@ -268,7 +268,7 @@ const sendBulkSMS = async (request, response) => {
     const res = await axios.post(
       "https://api.africastalking.com/version1/messaging/bulk",
       Object.entries({
-        username: process.env.AT_USERNAME,
+        username: "ggem",
         to: phoneNumbers.join(","),
         message: message,
         from: from || undefined,
