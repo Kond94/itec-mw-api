@@ -197,7 +197,6 @@ const getStatusMessage = (statusCode) => {
 const sendSingleSMS = async (request, response) => {
   const { phoneNumber, message, from } = request.body;
 
-  try {
     const res = await axios.post(
       "https://api.africastalking.com/version1/messaging",
       Object.entries({
@@ -225,7 +224,7 @@ const sendSingleSMS = async (request, response) => {
     const statusCode = recipient.statusCode;
 
     return response.status(200).json({
-      success: statusCode < 400,
+      success: statusCode < 400 ? true : false,
       message: getStatusMessage(statusCode),
       data: {
         phoneNumber: recipient.number,
@@ -235,17 +234,7 @@ const sendSingleSMS = async (request, response) => {
         statusMessage: getStatusMessage(statusCode),
       },
     });
-  } catch (error) {
-    return response.status(200).json({
-      success: false,
-      message: "SMS processing failed",
-      data: {
-        error: error.response?.data || error.message,
-        statusCode: error.response?.status || 500,
-        statusMessage: getStatusMessage(error.response?.status || 500),
-      },
-    });
-  }
+
 };
 
 const sendBulkSMS = async (request, response) => {
