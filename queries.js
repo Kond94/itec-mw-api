@@ -230,7 +230,6 @@ const sendSingleSMS = async (request, response) => {
       data: {
         phoneNumber: recipient.number,
         status: recipient.status,
-        messageId: recipient.messageId,
         cost: recipient.cost,
         statusCode: statusCode,
         statusMessage: getStatusMessage(statusCode),
