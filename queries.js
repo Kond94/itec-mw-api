@@ -250,14 +250,27 @@ const sendSingleSMS = async (request, response) => {
 };
 
 const sendBulkSMS = async (request, response) => {
-  const { phoneNumbers, message, from } = request.body;
+  const { phoneNumbers, message, from, enqueue = 1 } = request.body;
 
-  if (!Array.isArray(phoneNumbers)) {
-    return response.status(200).json({
+  // Input validation
+  if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
+    return response.status(400).json({
       success: false,
       message: "Invalid request format",
       data: {
-        error: "phoneNumbers must be an array",
+        error: "phoneNumbers must be a non-empty array",
+        statusCode: 400,
+        statusMessage: "Bad Request",
+      },
+    });
+  }
+
+  if (!message || message.trim() === "") {
+    return response.status(400).json({
+      success: false,
+      message: "Invalid request format",
+      data: {
+        error: "message is required and cannot be empty",
         statusCode: 400,
         statusMessage: "Bad Request",
       },
@@ -265,21 +278,29 @@ const sendBulkSMS = async (request, response) => {
   }
 
   try {
+    const requestData = {
+      username: "ggem",
+      to: phoneNumbers.join(","),
+      message: message,
+      bulkSMSMode: 1,
+      enqueue: enqueue,
+    };
+
+    // Add optional senderId if provided (named 'from' in the request)
+    if (from) {
+      requestData.from = from;
+    }
+
+    const formData = Object.entries(requestData)
+      .map(
+        ([key, value]) =>
+          encodeURIComponent(key) + "=" + encodeURIComponent(value)
+      )
+      .join("&");
+
     const res = await axios.post(
-      "https://api.africastalking.com/version1/messaging/bulk",
-      Object.entries({
-        username: "ggem",
-        to: phoneNumbers.join(","),
-        message: message,
-        from: from || undefined,
-        bulkSMSMode: 1,
-        enqueue: 1,
-      })
-        .map(
-          ([key, value]) =>
-            encodeURIComponent(key) + "=" + encodeURIComponent(value)
-        )
-        .join("&"),
+      "https://api.africastalking.com/version1/messaging",
+      formData,
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -290,7 +311,9 @@ const sendBulkSMS = async (request, response) => {
       }
     );
 
-    const results = res.data.SMSMessageData.Recipients.map((recipient) => ({
+    // Process the results
+    const recipients = res.data.SMSMessageData.Recipients || [];
+    const results = recipients.map((recipient) => ({
       phoneNumber: recipient.number,
       status: recipient.status,
       messageId: recipient.messageId,
@@ -300,6 +323,8 @@ const sendBulkSMS = async (request, response) => {
     }));
 
     const hasErrors = results.some((result) => result.statusCode >= 400);
+    const successCount = results.filter((r) => r.statusCode < 400).length;
+    const failedCount = results.filter((r) => r.statusCode >= 400).length;
 
     return response.status(200).json({
       success: !hasErrors,
@@ -307,14 +332,16 @@ const sendBulkSMS = async (request, response) => {
       data: {
         summary: {
           total: results.length,
-          successful: results.filter((r) => r.statusCode < 400).length,
-          failed: results.filter((r) => r.statusCode >= 400).length,
+          successful: successCount,
+          failed: failedCount,
         },
         messages: results,
       },
     });
   } catch (error) {
-    return response.status(200).json({
+    console.error("Bulk SMS Error:", error.response?.data || error.message);
+
+    return response.status(500).json({
       success: false,
       message: "Bulk SMS processing failed",
       data: {
@@ -325,7 +352,6 @@ const sendBulkSMS = async (request, response) => {
     });
   }
 };
-
 
 module.exports = {
   makePayment,
