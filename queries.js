@@ -197,21 +197,24 @@ const getStatusMessage = (statusCode) => {
 const sendSingleSMS = async (request, response) => {
   const { phoneNumber, message, from } = request.body;
 
+  if (!phoneNumber || !message) {
+    return response.status(400).json({
+      success: false,
+      message: "Phone number and message are required",
+    });
+  }
+
   try {
+    // Using direct call to Africa's Talking API
     const res = await axios.post(
       "https://api.africastalking.com/version1/messaging",
-      Object.entries({
+      new URLSearchParams({
         username: "ggem",
         to: phoneNumber,
         message: message,
-        from: from || undefined,
-        enqueue: 1,
-      })
-        .map(
-          ([key, value]) =>
-            encodeURIComponent(key) + "=" + encodeURIComponent(value)
-        )
-        .join("&"),
+        from: from || "GGEM", // Default sender ID
+        enqueue: 1, // Enable queuing for faster response
+      }).toString(),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -222,21 +225,30 @@ const sendSingleSMS = async (request, response) => {
       }
     );
 
-    const recipient = res.data.SMSMessageData.Recipients[0];
+    // Handle the response more comprehensively
+    const smsData = res.data.SMSMessageData;
+    const recipient = smsData.Recipients[0];
     const statusCode = recipient.statusCode;
 
+    // Log detailed response for debugging
+    console.log("Africa's Talking API Response:", JSON.stringify(smsData));
+
     return response.status(200).json({
-      success: statusCode < 400 ? true : false,
+      success: statusCode < 400,
       message: getStatusMessage(statusCode),
       data: {
+        messageId: recipient.messageId, // Make sure to include the messageId in the response
         phoneNumber: recipient.number,
         status: recipient.status,
         cost: recipient.cost,
         statusCode: statusCode,
         statusMessage: getStatusMessage(statusCode),
+        rawResponse: smsData, // Include the raw response for debugging
       },
     });
   } catch (error) {
+    console.error("SMS sending error:", error);
+
     return response.status(200).json({
       success: false,
       message: "SMS processing failed",
